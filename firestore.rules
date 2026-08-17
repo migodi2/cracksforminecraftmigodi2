@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthed() {
+      return request.auth != null && request.auth.token != null;
+    }
+
+    function isAdmin() {
+      return isAuthed()
+        && exists(/databases/$(database)/documents/meta/admins)
+        && get(/databases/$(database)/documents/meta/admins).data.uids.hasAny([request.auth.uid]);
+    }
+
+    match /meta/banned {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /meta/auditLog/entries/{entryId} {
+      allow read: if true;
+      allow create: if isAuthed()
+        && request.resource.data.keys().hasOnly(['action','target','by','ts','fp']);
+      allow update, delete: if false;
+    }
+
+    match /meta/admins {
+      allow read: if isAuthed();
+      allow write: if false;
+    }
+  }
+}
