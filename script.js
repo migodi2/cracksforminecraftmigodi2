@@ -107,18 +107,37 @@
 
   const cards = document.querySelectorAll('.card');
   cards.forEach(card=>{
+    let curRx = 0, curRy = 0, curTx = 0, curTy = 0;
+    let running = false;
+    function lerp(a, b, t){ return a + (b - a) * t; }
+    function animate(){
+      const rx = lerp(curRx, curTx, 0.12);
+      const ry = lerp(curRy, curTy, 0.12);
+      if(Math.abs(rx - curTx) < 0.05 && Math.abs(ry - curTy) < 0.05){
+        card.style.transform = `translateY(-24px) perspective(600px) rotateX(${curTy}deg) rotateY(${curTx}deg) scale(1.06)`;
+        running = false; return;
+      }
+      curRx = rx; curRy = ry;
+      card.style.transform = `translateY(-24px) perspective(600px) rotateX(${ry}deg) rotateY(${rx}deg) scale(1.06)`;
+      requestAnimationFrame(animate);
+    }
     card.addEventListener('click', (e)=>{
       if(e.target.closest('.dl-btn')) return;
       const wasSelected = card.classList.contains('selected');
-      cards.forEach(c=>{
-        c.classList.remove('selected');
-        c.style.animation = 'none';
-      });
-      if(!wasSelected){
-        void card.offsetWidth;
-        card.style.animation = '';
-        card.classList.add('selected');
-      }
+      cards.forEach(c=>c.classList.remove('selected'));
+      if(!wasSelected) card.classList.add('selected');
+    });
+    card.addEventListener('mousemove', (e)=>{
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      const y = (e.clientY - r.top) / r.height;
+      curTx = (x - 0.5) * 24;
+      curTy = (0.5 - y) * 24;
+      if(!running){ running = true; requestAnimationFrame(animate); }
+    });
+    card.addEventListener('mouseleave', ()=>{
+      curTx = 0; curTy = 0;
+      if(!running){ running = true; requestAnimationFrame(animate); }
     });
   });
 
@@ -127,6 +146,27 @@
   const buttons = document.querySelectorAll('.tab-btn');
   const panels = document.querySelectorAll('.tab-panel');
   const OUT_MS = 180;
+
+  function animateCardsIn(panel){
+    const panelCards = panel.querySelectorAll('.card');
+    panelCards.forEach((c, i)=>{
+      c.style.opacity = '0';
+      c.style.transform = 'translateY(60px) scale(0.8) rotateX(15deg)';
+      c.style.filter = 'brightness(0.3)';
+      setTimeout(()=>{
+        c.style.transition = 'opacity .5s ease, transform .55s cubic-bezier(.23,1,.32,1), filter .4s ease';
+        c.style.opacity = '1';
+        c.style.transform = 'translateY(0) scale(1) rotateX(0deg)';
+        c.style.filter = '';
+        setTimeout(()=>{
+          c.style.transition = '';
+          c.style.transform = '';
+          c.style.opacity = '';
+          c.style.filter = '';
+        }, 600);
+      }, 40 + i * 45);
+    });
+  }
 
   buttons.forEach(btn=>{
     btn.addEventListener('click', ()=>{
@@ -148,14 +188,19 @@
         setTimeout(()=>{
           current.classList.remove('leaving');
           next.classList.add('active');
+          animateCardsIn(next);
           if(window.refreshScrollReveal) window.refreshScrollReveal();
         }, OUT_MS);
       } else {
         next.classList.add('active');
+        animateCardsIn(next);
         if(window.refreshScrollReveal) window.refreshScrollReveal();
       }
     });
   });
+
+  const initialPanel = document.querySelector('.tab-panel.active');
+  if(initialPanel) animateCardsIn(initialPanel);
 
   const cheatsSearch = document.getElementById('cheatsSearch');
   const cheatsGrid = document.getElementById('cheatsGrid');
