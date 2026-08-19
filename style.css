@@ -398,7 +398,7 @@ footer{ text-align:center; color:var(--text-muted); font-size:13px; margin-top:6
 .tab-panel.active .card{}
 @keyframes tab-out{ from{ opacity:1; transform:translateY(0); } to{ opacity:0; transform:translateY(-14px); } }
 @media(prefers-reduced-motion:reduce){ .tab-panel.active,.tab-panel.leaving{ animation:none; } .tab-panel.active .card{ animation:none; opacity:1; transform:none; } }
-.respack-card{ max-width:470px; }
+.respack-card{ max-width:470px; filter:none !important; image-rendering:auto !important; }
 
 /* ============================================
    PROFILE - Modern Glassmorphism
