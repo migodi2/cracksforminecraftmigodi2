@@ -38,7 +38,7 @@
       cheats_title: 'Читы для клиентов',
       visuals_title: 'Визуалы',
       dl: 'Скачать',
-      beta_note: 'Это только бета версия, дальше будет лучше!',
+      beta_note: 'release 1.0',
       disclaimer: 'Мы не несём ответственности. Все материалы скачиваются из других исходников.',
       empty_note: 'Раздел пока пуст — добавьте свои карточки по образцу выше.',
       search_ph: 'Поиск читов…',
@@ -66,7 +66,7 @@
       cheats_title: 'Cheats for clients',
       visuals_title: 'Visuals',
       dl: 'Download',
-      beta_note: 'This is just a beta version, it will get better!',
+      beta_note: 'release 1.0',
       disclaimer: 'We are not responsible. All materials are downloaded from other sources.',
       empty_note: 'This section is empty — add your own cards like above.',
       search_ph: 'Search cheats…',
@@ -374,14 +374,20 @@
 
     function renderAvatar(){
       var acc = getAccount();
-      var img = (acc && acc.avatar) ? acc.avatar : 'avatar.jpg';
       [avatar, cardAvatar].forEach(function(el){
         if(!el) return;
-        if(!acc){
+        if(!acc || !acc.avatar){
           el.style.backgroundImage = 'none';
-          el.textContent = '?';
+          el.style.backgroundSize = '';
+          el.style.backgroundPosition = '';
+          el.style.backgroundRepeat = '';
+          var initials = (acc && acc.username) ? acc.username.slice(0,2).toUpperCase() : '?';
+          el.textContent = initials;
         } else {
-          el.style.backgroundImage = "url('"+img+"')";
+          el.style.backgroundImage = "url('"+acc.avatar+"')";
+          el.style.backgroundSize = 'cover';
+          el.style.backgroundPosition = 'center';
+          el.style.backgroundRepeat = 'no-repeat';
           el.textContent = '';
         }
       });
@@ -509,12 +515,22 @@
       if(!file) return;
       var reader = new FileReader();
       reader.onload = function(){
-        var a = getAccount();
-        if(!a) return;
-        a.avatar = reader.result;
-        saveAccount(a);
-        renderProfile();
-        fileInput.value = '';
+        var img = new Image();
+        img.onload = function(){
+          var size = 256;
+          var canvas = document.createElement('canvas');
+          canvas.width = size; canvas.height = size;
+          var ctx = canvas.getContext('2d');
+          var side = Math.min(img.width, img.height);
+          ctx.drawImage(img, (img.width-side)/2, (img.height-side)/2, side, side, 0, 0, size, size);
+          var a = getAccount();
+          if(!a) return;
+          a.avatar = canvas.toDataURL('image/jpeg', 0.85);
+          try { saveAccount(a); } catch(e){ showErr(currentLang === 'ru' ? 'Не удалось сохранить аватарку' : 'Failed to save avatar'); return; }
+          renderProfile();
+          fileInput.value = '';
+        };
+        img.src = reader.result;
       };
       reader.readAsDataURL(file);
     });

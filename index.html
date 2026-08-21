@@ -164,7 +164,7 @@
           </svg>
         </a>
       </p>
-      <p class="beta-line" data-i18n="beta_note">Это только бета версия, дальше будет лучше!</p>
+      <p class="beta-line" data-i18n="beta_note">release 1.0</p>
       <div class="advantages">
         <div class="adv-col">
           <p class="advantages-note">Бесплатно и без регистрации</p>
@@ -339,7 +339,7 @@
 
 <div class="profile" id="profile">
   <button class="profile-trigger" id="profileTrigger" type="button">
-    <span class="profile-avatar" id="profileAvatar" style="background-image:url('avatar.jpg');background-size:cover;background-position:center;"></span>
+    <span class="profile-avatar" id="profileAvatar"></span>
   </button>
   <div class="profile-overlay" id="profileOverlay"></div>
   <div class="profile-card" id="profileCard" hidden>
@@ -348,7 +348,7 @@
     </button>
     <div class="profile-card-glow"></div>
     <div class="profile-card-avatar-wrap">
-      <div class="profile-card-avatar" id="profileCardAvatar" style="background-image:url('avatar.jpg');background-size:cover;background-position:center;"></div>
+      <div class="profile-card-avatar" id="profileCardAvatar"></div>
       <label class="profile-card-upload" id="profileUploadBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         <input type="file" id="profileFile" accept="image/*" hidden>
@@ -412,7 +412,7 @@
 
 
 
-<div class="lightbox" id="lightbox" hidden>
+<div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lightboxClose">&times;</button>
   <img class="lightbox-img" id="lightboxImg" src="" alt="Preview">
 </div>
@@ -472,13 +472,18 @@
     var lb = document.getElementById('lightbox');
     var img = document.getElementById('lightboxImg');
     img.src = src;
-    lb.hidden = false;
+    lb.classList.add('open');
   }
   document.getElementById('lightboxClose').addEventListener('click', function(){
-    document.getElementById('lightbox').hidden = true;
+    document.getElementById('lightbox').classList.remove('open');
   });
   document.getElementById('lightbox').addEventListener('click', function(e){
-    if(e.target === this) this.hidden = true;
+    if(e.target === this) this.classList.remove('open');
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      document.getElementById('lightbox').classList.remove('open');
+    }
   });
 </script>
 
