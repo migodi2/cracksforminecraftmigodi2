@@ -107,19 +107,29 @@
 
   const cards = document.querySelectorAll('.card');
   cards.forEach(card=>{
-    let curRx = 0, curRy = 0, curTx = 0, curTy = 0;
+    let cur = { x:0, y:0, l:0, s:1 };
+    let tgt = { x:0, y:0, l:0, s:1 };
     let running = false;
     function lerp(a, b, t){ return a + (b - a) * t; }
     function animate(){
-      const rx = lerp(curRx, curTx, 0.12);
-      const ry = lerp(curRy, curTy, 0.12);
-      if(Math.abs(rx - curTx) < 0.05 && Math.abs(ry - curTy) < 0.05){
-        card.style.transform = `translateY(-24px) perspective(600px) rotateX(${curTy}deg) rotateY(${curTx}deg) scale(1.06)`;
-        running = false; return;
+      ['x','y','l','s'].forEach(function(k){
+        cur[k] = lerp(cur[k], tgt[k], 0.15);
+      });
+      const settled =
+        Math.abs(cur.x - tgt.x) < 0.05 &&
+        Math.abs(cur.y - tgt.y) < 0.05 &&
+        Math.abs(cur.l - tgt.l) < 0.3 &&
+        Math.abs(cur.s - tgt.s) < 0.002;
+      if(settled && tgt.l === 0){
+        card.style.transform = '';
+        running = false;
+        return;
       }
-      curRx = rx; curRy = ry;
-      card.style.transform = `translateY(-24px) perspective(600px) rotateX(${ry}deg) rotateY(${rx}deg) scale(1.06)`;
+      card.style.transform = `translateY(${cur.l}px) perspective(600px) rotateX(${-cur.y}deg) rotateY(${cur.x}deg) scale(${cur.s})`;
       requestAnimationFrame(animate);
+    }
+    function start(){
+      if(!running){ running = true; requestAnimationFrame(animate); }
     }
     card.addEventListener('click', (e)=>{
       if(e.target.closest('.dl-btn')) return;
@@ -131,13 +141,15 @@
       const r = card.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width;
       const y = (e.clientY - r.top) / r.height;
-      curTx = (x - 0.5) * 24;
-      curTy = (0.5 - y) * 24;
-      if(!running){ running = true; requestAnimationFrame(animate); }
+      tgt.x = (x - 0.5) * 16;
+      tgt.y = (0.5 - y) * 16;
+      tgt.l = -14;
+      tgt.s = 1.04;
+      start();
     });
     card.addEventListener('mouseleave', ()=>{
-      curTx = 0; curTy = 0;
-      if(!running){ running = true; requestAnimationFrame(animate); }
+      tgt.x = 0; tgt.y = 0; tgt.l = 0; tgt.s = 1;
+      start();
     });
   });
 
@@ -178,6 +190,7 @@
 
       buttons.forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
+      try { localStorage.setItem('cfm_activeTab', btn.dataset.tab); } catch(e){}
 
       var nextRevealEls = next.querySelectorAll('.scroll-reveal');
       nextRevealEls.forEach(function(el){ el.classList.remove('visible'); });
