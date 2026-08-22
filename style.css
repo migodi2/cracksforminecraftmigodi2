@@ -75,7 +75,7 @@ html,body{
   display:block;
   clip-path:inset(0 100% 0 0);
 }
-.intro-sub.s1{ animation:intro-reveal .8s steps(30,end) 1.2s forwards; }
+.intro-sub.s1{ animation:intro-reveal .8s steps(45,end) 1.2s forwards; }
 .intro-sub.s2{ animation:intro-reveal .7s steps(25,end) 2.1s forwards; }
 .intro-luck{
   font-size:16px; font-weight:700; color:var(--accent-2);
@@ -390,6 +390,8 @@ footer{ text-align:center; color:var(--text-muted); font-size:13px; margin-top:6
 @media(prefers-reduced-motion:reduce){ .tab-panel.active,.tab-panel.leaving{ animation:none; } .tab-panel.active .card{ animation:none; opacity:1; transform:none; } }
 .respack-card{ max-width:470px; filter:none !important; image-rendering:auto !important; }
 .respack-card .respack-preview img { filter: none !important; }
+.respack-card::before,
+.respack-card::after{ display:none !important; }
 
 /* ============================================
    PROFILE - Modern Glassmorphism
@@ -710,6 +712,65 @@ body::after{
 @keyframes blob-pulse{
   0%{ transform:scale(1); opacity:0.03; }
   100%{ transform:scale(1.35); opacity:0.07; }
+}
+.floating-pixels{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.fpixel{
+  position:absolute; bottom:-20px;
+  background:var(--accent);
+  box-shadow:0 0 8px var(--accent), 0 0 20px var(--accent);
+  animation:fpixel-rise linear infinite;
+}
+@keyframes fpixel-rise{
+  0%{ transform:translateY(0) rotate(0deg); opacity:0; }
+  8%{ opacity:.25; }
+  50%{ transform:translateY(-55vh) translateX(24px) rotate(180deg); }
+  92%{ opacity:.2; }
+  100%{ transform:translateY(-110vh) translateX(-16px) rotate(360deg); opacity:0; }
+}
+.shooting-stars{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.star{
+  position:absolute; width:90px; height:1.5px;
+  background:linear-gradient(90deg, transparent, var(--accent-2));
+  filter:drop-shadow(0 0 4px var(--accent));
+  transform:rotate(18deg);
+  animation:star-fly ease-in infinite;
+  opacity:0;
+}
+@keyframes star-fly{
+  0%{ transform:translateX(0) translateY(0) rotate(18deg); opacity:0; }
+  3%{ opacity:.9; }
+  12%{ transform:translateX(60vw) translateY(22vh) rotate(18deg); opacity:0; }
+  100%{ transform:translateX(60vw) translateY(22vh) rotate(18deg); opacity:0; }
+}
+@media(prefers-reduced-motion:reduce){
+  .fpixel,.star,.bg-particle,.shimmer-line,.ambient-blob{ animation:none; opacity:.1; }
+}
+
+/* ============================================
+   SMOOTH THEME TRANSITION
+   ============================================ */
+html.theme-transition body,
+html.theme-transition .card,
+html.theme-transition nav.tabs,
+html.theme-transition .tab-btn,
+html.theme-transition button,
+html.theme-transition input,
+html.theme-transition h1, html.theme-transition h2, html.theme-transition h3,
+html.theme-transition p, html.theme-transition span,
+html.theme-transition a, html.theme-transition svg,
+html.theme-transition .update-item,
+html.theme-transition .profile-card,
+html.theme-transition .reg-modal,
+html.theme-transition .theme-panel,
+html.theme-transition .respack-preview img,
+html.theme-transition .bg-particle,
+html.theme-transition .shimmer-line,
+html.theme-transition .ambient-blob,
+html.theme-transition .fpixel,
+html.theme-transition .star{
+  transition: background-color .55s ease, background .55s ease,
+    color .55s ease, border-color .55s ease,
+    box-shadow .55s ease, fill .55s ease, filter .55s ease !important;
 }
 
 /* ============================================

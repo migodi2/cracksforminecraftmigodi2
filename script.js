@@ -30,11 +30,11 @@
 
   const translations = {
     ru: {
-      tab_cheats: 'Читы',
-      tab_respacks: 'Ресурспаки',
-      tab_visuals: 'Визуалы',
-      tab_configs: 'Конфиги',
-      tab_updates: 'Обновление',
+      tab_cheats: 'Cheats',
+      tab_respacks: 'Resource Packs',
+      tab_visuals: 'Visuals',
+      tab_configs: 'Configs',
+      tab_updates: 'Updates',
       cheats_title: 'Читы для клиентов',
       visuals_title: 'Визуалы',
       dl: 'Скачать',
@@ -240,7 +240,20 @@
     var btns = panel.querySelectorAll('.theme-btn');
     var root = document.documentElement;
 
-    function applyTheme(t){
+    var themeAnimTimer = null;
+    function applyTheme(t, instant){
+      if(instant){
+        applyThemeVars(t);
+        return;
+      }
+      document.documentElement.classList.add('theme-transition');
+      clearTimeout(themeAnimTimer);
+      themeAnimTimer = setTimeout(function(){
+        document.documentElement.classList.remove('theme-transition');
+      }, 700);
+      applyThemeVars(t);
+    }
+    function applyThemeVars(t){
       root.style.setProperty('--bg', t.bg);
       root.style.setProperty('--card', t.card);
       root.style.setProperty('--card-border', t.border);
@@ -259,7 +272,7 @@
     var saved = localStorage.getItem('siteTheme');
     if(saved){
       var t = JSON.parse(saved);
-      applyTheme(t);
+      applyTheme(t, true);
       btns.forEach(function(b){
         var d = JSON.parse(b.dataset.theme);
         b.classList.toggle('active', d.accent === t.accent);
